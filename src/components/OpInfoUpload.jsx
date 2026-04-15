@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
-import { parseMultipleFiles } from '../utils/parseExcel';
-import './FileUpload.css';
+import { parseMultipleOpInfoFiles } from '../utils/parseOpInfo';
+import './FileUpload.css'; // 동일 스타일 재사용
 
-export default function FileUpload({ onDataLoaded, existingCount }) {
+export default function OpInfoUpload({ onDataLoaded, existingCount }) {
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -10,21 +10,24 @@ export default function FileUpload({ onDataLoaded, existingCount }) {
   const folderRef = useRef();
 
   const handleFiles = async (files) => {
-    const xlsxFiles = Array.from(files).filter(
-      (f) => f.name.endsWith('.xlsx') || f.name.endsWith('.XLSX')
+    const xlsFiles = Array.from(files).filter(
+      (f) => f.name.match(/\.xls$/i) && !f.name.match(/\.xlsx$/i)
     );
-    if (xlsxFiles.length === 0) {
-      setMessage('❌ xlsx 파일을 찾을 수 없습니다.');
+    if (xlsFiles.length === 0) {
+      setMessage('❌ .xls 파일(영업정보)을 찾을 수 없습니다.');
       return;
     }
     setLoading(true);
-    setMessage(`⏳ ${xlsxFiles.length}개 파일 처리 중...`);
-    const { results, errors } = await parseMultipleFiles(xlsxFiles);
+    setMessage(`⏳ ${xlsFiles.length}개 파일 처리 중...`);
+    const { results, errors } = await parseMultipleOpInfoFiles(xlsFiles);
     setLoading(false);
-    if (errors.length > 0) setMessage(`⚠️ ${errors.length}개 오류 / ${results.length}개 성공`);
+
+    if (errors.length > 0) setMessage(`⚠️ ${errors.length}개 오류 / ${results.length}건 성공`);
     if (results.length > 0) {
       onDataLoaded(results);
-      setMessage(`✅ ${results.length}개 파일 로드 완료!`);
+      setMessage(`✅ ${results.length}건 로드 완료! (${xlsFiles.length}개 파일)`);
+    } else if (errors.length > 0) {
+      setMessage(`❌ 파싱 실패: ${errors[0]}`);
     }
   };
 
@@ -42,9 +45,10 @@ export default function FileUpload({ onDataLoaded, existingCount }) {
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
       >
-        <div className="drop-icon">📂</div>
-        <div className="drop-title">이지포스 엑셀 업로드</div>
-        <div className="drop-sub">폴더를 통째로 드래그하거나 아래 버튼으로 선택</div>
+        <div className="drop-icon">📋</div>
+        <div className="drop-title">영업정보 업로드 (.xls)</div>
+        <div className="drop-sub">고객수·영수건수·영수단가가 포함된 영업정보 파일</div>
+        <div className="drop-sub" style={{ color: '#9ca3af', marginTop: 4 }}>파일명 형식: YYYY-MM.xls (예: 2026-01.xls)</div>
         <div className="upload-btn-row">
           <button className="upload-btn" onClick={() => fileRef.current.click()}>
             📄 파일 선택
@@ -53,20 +57,18 @@ export default function FileUpload({ onDataLoaded, existingCount }) {
             📁 폴더 선택
           </button>
         </div>
-        {/* 파일 선택 input */}
         <input
           ref={fileRef}
           type="file"
-          accept=".xlsx"
+          accept=".xls"
           multiple
           style={{ display: 'none' }}
           onChange={(e) => handleFiles(e.target.files)}
         />
-        {/* 폴더 선택 input */}
         <input
           ref={folderRef}
           type="file"
-          accept=".xlsx"
+          accept=".xls"
           multiple
           webkitdirectory=""
           style={{ display: 'none' }}
@@ -75,7 +77,7 @@ export default function FileUpload({ onDataLoaded, existingCount }) {
       </div>
       {message && <div className={`upload-msg ${loading ? 'loading' : ''}`}>{message}</div>}
       {existingCount > 0 && (
-        <div className="upload-status">현재 로드된 파일: <strong>{existingCount}개</strong></div>
+        <div className="upload-status">현재 로드된 영업정보: <strong>{existingCount}건</strong></div>
       )}
     </div>
   );

@@ -4,16 +4,20 @@
  */
 
 const DB_NAME = 'brand-analytics-db';
-const DB_VERSION = 1;
-const STORE_NAME = 'sales-data';
+const DB_VERSION = 2; // 영업정보 스토어 추가로 버전 업
+const SALES_STORE = 'sales-data';
+const OP_STORE = 'op-data';
 
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = (e) => {
       const db = e.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'key' });
+      if (!db.objectStoreNames.contains(SALES_STORE)) {
+        db.createObjectStore(SALES_STORE, { keyPath: 'key' });
+      }
+      if (!db.objectStoreNames.contains(OP_STORE)) {
+        db.createObjectStore(OP_STORE, { keyPath: 'key' });
       }
     };
     req.onsuccess = (e) => resolve(e.target.result);
@@ -21,17 +25,15 @@ function openDB() {
   });
 }
 
-/** 파싱된 데이터 전체를 저장 */
+// ─── 이지포스 판매 데이터 ───────────────────────────────
+
 export async function saveAllData(allData) {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-
-    // 기존 데이터 전체 삭제 후 재저장
+    const tx = db.transaction(SALES_STORE, 'readwrite');
+    const store = tx.objectStore(SALES_STORE);
     store.clear();
     allData.forEach((d) => store.put(d));
-
     return new Promise((resolve, reject) => {
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => reject(tx.error);
@@ -42,13 +44,11 @@ export async function saveAllData(allData) {
   }
 }
 
-/** 저장된 데이터 전체 불러오기 */
 export async function loadAllData() {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-
+    const tx = db.transaction(SALES_STORE, 'readonly');
+    const store = tx.objectStore(SALES_STORE);
     return new Promise((resolve, reject) => {
       const req = store.getAll();
       req.onsuccess = () => resolve(req.result || []);
@@ -60,15 +60,61 @@ export async function loadAllData() {
   }
 }
 
-/** 저장된 데이터 전체 삭제 */
 export async function clearAllData() {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).clear();
+    const tx = db.transaction(SALES_STORE, 'readwrite');
+    tx.objectStore(SALES_STORE).clear();
     return new Promise((resolve) => { tx.oncomplete = () => resolve(true); });
   } catch (err) {
     console.warn('IndexedDB 삭제 실패:', err);
+    return false;
+  }
+}
+
+// ─── 영업정보 데이터 (고객수·영수건수·영수단가) ────────────
+
+export async function saveOpData(opData) {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(OP_STORE, 'readwrite');
+    const store = tx.objectStore(OP_STORE);
+    store.clear();
+    opData.forEach((d) => store.put(d));
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.warn('IndexedDB 영업정보 저장 실패:', err);
+    return false;
+  }
+}
+
+export async function loadOpData() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(OP_STORE, 'readonly');
+    const store = tx.objectStore(OP_STORE);
+    return new Promise((resolve, reject) => {
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  } catch (err) {
+    console.warn('IndexedDB 영업정보 불러오기 실패:', err);
+    return [];
+  }
+}
+
+export async function clearOpData() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(OP_STORE, 'readwrite');
+    tx.objectStore(OP_STORE).clear();
+    return new Promise((resolve) => { tx.oncomplete = () => resolve(true); });
+  } catch (err) {
+    console.warn('IndexedDB 영업정보 삭제 실패:', err);
     return false;
   }
 }
