@@ -1,30 +1,57 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import FileUpload from './FileUpload';
 import FilterBar from './FilterBar';
+import PMix from './PMix';
+import DailyTrend from './DailyTrend';
+import YoY from './YoY';
 import {
   aggregateByStore, aggregateByMonth, getYears, getStores,
   formatKRW, formatShort,
 } from '../utils/calcMetrics';
+import { saveAllData, loadAllData, clearAllData } from '../utils/storage';
 import './Dashboard.css';
 
 export default function Dashboard() {
   const [allData, setAllData] = useState([]);
   const [filters, setFilters] = useState({ year: '', months: [], stores: [] });
   const [activeTab, setActiveTab] = useState('overview');
+  const [dbLoading, setDbLoading] = useState(true);
+
+  // 앱 시작 시 저장된 데이터 불러오기
+  useEffect(() => {
+    loadAllData().then((saved) => {
+      if (saved.length > 0) {
+        setAllData(saved);
+        const years = [...new Set(saved.map((d) => d.year))].sort();
+        setFilters((f) => ({ ...f, year: years[years.length - 1] }));
+      }
+      setDbLoading(false);
+    });
+  }, []);
 
   const handleDataLoaded = (newResults) => {
     setAllData((prev) => {
       const map = {};
       [...prev, ...newResults].forEach((d) => { map[d.key] = d; });
-      return Object.values(map);
+      const merged = Object.values(map);
+      saveAllData(merged); // IndexedDB에 자동 저장
+      return merged;
     });
     if (newResults.length > 0 && !filters.year) {
       const years = [...new Set(newResults.map((d) => d.year))].sort();
       setFilters((f) => ({ ...f, year: years[years.length - 1] }));
+    }
+  };
+
+  const handleClearData = async () => {
+    if (window.confirm('저장된 데이터를 모두 삭제할까요?')) {
+      await clearAllData();
+      setAllData([]);
+      setFilters({ year: '', months: [], stores: [] });
     }
   };
 
@@ -37,6 +64,14 @@ export default function Dashboard() {
   const totalTx = storeData.reduce((s, d) => s + d.totalTxCount, 0);
   const avgPerTx = totalTx > 0 ? totalSales / totalTx : 0;
   const storeSalesChart = [...storeData].sort((a, b) => b.totalSales - a.totalSales);
+
+  if (dbLoading) {
+    return (
+      <div className="dashboard-empty">
+        <div className="empty-title">⏳ 데이터 불러오는 중...</div>
+      </div>
+    );
+  }
 
   if (allData.length === 0) {
     return (
@@ -52,6 +87,10 @@ export default function Dashboard() {
     <div className="dashboard">
       <div className="dash-header">
         <div className="dash-title">📊 브랜드 매출 분석 대시보드</div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontSize: 11, color: '#9ca3af' }}>💾 자동저장됨</span>
+          <button className="btn-clear" onClick={handleClearData}>데이터 초기화</button>
+        </div>
       </div>
 
       <FilterBar years={years} stores={stores} filters={filters} onFilterChange={setFilters} />
@@ -66,6 +105,9 @@ export default function Dashboard() {
       <div className="tab-bar">
         <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>매장별 비교</button>
         <button className={`tab-btn ${activeTab === 'monthly' ? 'active' : ''}`} onClick={() => setActiveTab('monthly')}>월별 추이</button>
+        <button className={`tab-btn ${activeTab === 'pmix' ? 'active' : ''}`} onClick={() => setActiveTab('pmix')}>P-Mix</button>
+        <button className={`tab-btn ${activeTab === 'daily' ? 'active' : ''}`} onClick={() => setActiveTab('daily')}>일별 추이</button>
+        <button className={`tab-btn ${activeTab === 'yoy' ? 'active' : ''}`} onClick={() => setActiveTab('yoy')}>전년 대비</button>
         <button className={`tab-btn ${activeTab === 'upload' ? 'active' : ''}`} onClick={() => setActiveTab('upload')}>파일 추가</button>
       </div>
 
@@ -182,6 +224,18 @@ export default function Dashboard() {
             </table>
           </div>
         </div>
+      )}
+
+      {activeTab === 'pmix' && (
+        <PMix allData={allData} filters={filters} />
+      )}
+
+      {activeTab === 'daily' && (
+        <DailyTrend allData={allData} filters={filters} />
+      )}
+
+      {activeTab === 'yoy' && (
+        <YoY allData={allData} />
       )}
 
       {activeTab === 'upload' && (

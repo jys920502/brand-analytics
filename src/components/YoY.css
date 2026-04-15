@@ -1,0 +1,2 @@
+.yoy { display: flex; flex-direction: column; gap: 16px; }
+.yoy-empty { padding: 40px; text-align: center; color: #6b7280; line-height: 2; }
