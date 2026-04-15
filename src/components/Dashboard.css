@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+.dashboard { max-width: 1200px; margin: 0 auto; padding: 24px; font-family: 'Segoe UI', system-ui, sans-serif; }
+.dashboard-empty { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 40px; background: #f9fafb; }
+.empty-title { font-size: 24px; font-weight: 700; color: #0d2258; }
+.empty-sub { font-size: 14px; color: #6b7280; margin-bottom: 8px; }
+.dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.dash-title { font-size: 20px; font-weight: 700; color: #0d2258; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border: 1px solid #e5e7eb; border-top: 4px solid #0d2258; border-radius: 12px; padding: 16px 18px; }
+.kpi-label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.kpi-value { font-size: 26px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.kpi-sub { font-size: 11px; color: #9ca3af; }
+.tab-bar { display: flex; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; }
+.tab-btn { padding: 10px 20px; border: none; background: none; font-size: 13px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab-btn:hover { color: #0d2258; }
+.tab-btn.active { color: #0d2258; border-bottom-color: #0d2258; font-weight: 700; }
+.tab-content { display: flex; flex-direction: column; gap: 16px; }
+.chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; }
+.chart-title { font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.4px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: #0d2258; color: #fff; padding: 8px 12px; text-align: center; font-weight: 600; font-size: 12px; }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; text-align: center; }
+.data-table .td-store { text-align: left; font-weight: 600; color: #0d2258; }
+.data-table .td-num { font-variant-numeric: tabular-nums; }
+.data-table tr:hover td { background: #f8f9fb; }
+.data-table .total-row td { background: #eff3ff; font-weight: 700; border-top: 2px solid #0d2258; }
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid-2 { grid-template-columns: 1fr; }
+  .dashboard { padding: 16px; }
+}

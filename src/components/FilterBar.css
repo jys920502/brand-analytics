@@ -1,0 +1,7 @@
+.filterbar { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.filter-group { display: flex; align-items: flex-start; gap: 12px; }
+.filter-label { font-size: 12px; font-weight: 700; color: #374151; width: 36px; padding-top: 5px; flex-shrink: 0; }
+.filter-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-btn { padding: 4px 12px; border-radius: 20px; border: 1.5px solid #e5e7eb; background: #fff; font-size: 12px; color: #374151; cursor: pointer; transition: all 0.15s; }
+.filter-btn:hover { border-color: #0d2258; color: #0d2258; }
+.filter-btn.active { background: #0d2258; border-color: #0d2258; color: #fff; font-weight: 600; }

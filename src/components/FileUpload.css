@@ -1,0 +1,15 @@
+.upload-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.drop-zone {
+  width: 100%; max-width: 560px;
+  border: 2px dashed #9ca3af; border-radius: 14px;
+  padding: 40px 32px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: #fafafa;
+}
+.drop-zone:hover, .drop-zone.dragging { border-color: #0d2258; background: #f0f4ff; }
+.drop-icon { font-size: 40px; margin-bottom: 10px; }
+.drop-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 6px; }
+.drop-sub { font-size: 12px; color: #6b7280; margin-top: 3px; }
+.upload-msg { font-size: 13px; color: #374151; padding: 8px 16px; background: #f3f4f6; border-radius: 8px; }
+.upload-msg.loading { color: #0d2258; background: #eff3ff; }
+.upload-status { font-size: 12px; color: #6b7280; }
+.upload-status strong { color: #0d2258; }
