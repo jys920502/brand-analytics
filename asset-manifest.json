@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/brand-analytics/static/css/main.25854a43.css",
-    "main.js": "/brand-analytics/static/js/main.10c70c43.js",
+    "main.js": "/brand-analytics/static/js/main.c87326bf.js",
     "static/js/453.f994b7cd.chunk.js": "/brand-analytics/static/js/453.f994b7cd.chunk.js",
     "index.html": "/brand-analytics/index.html",
     "main.25854a43.css.map": "/brand-analytics/static/css/main.25854a43.css.map",
-    "main.10c70c43.js.map": "/brand-analytics/static/js/main.10c70c43.js.map",
+    "main.c87326bf.js.map": "/brand-analytics/static/js/main.c87326bf.js.map",
     "453.f994b7cd.chunk.js.map": "/brand-analytics/static/js/453.f994b7cd.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.25854a43.css",
-    "static/js/main.10c70c43.js"
+    "static/js/main.c87326bf.js"
   ]
 }
